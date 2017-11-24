@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <title>shortVideo</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <script src='js/gif.js'></script>
+    <title>图片生成gif</title>
+    <style>
+       html, body, div, form, p, a, h1, h2, h3, h4, h5, h6, img, table, td, th, input, span, section, header, footer, nav, article, aside, fieldset, textarea, dl, dt, dd, blockquote, ul, ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    html, body {
+        height: 100%;
+        width: 100%;
+    }
+
+    .clearfix {
+        zoom: 1;
+    }
+
+    .clearfix:after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .img-item {
+        float: left;
+    }
+
+    .hide-img {
+        display: none;
+    }
+
+    .img-item {
+        width: 48%;
+        margin-top: 10px;
+    }
+
+    .img-item img {
+        width: 100%;
+    }
+
+    .img-item:nth-of-type(2n) {
+        margin-left: 4%;
+    }
+    </style>
+</head>
+<body>
+    <div class="img-container clearfix" id="app">
+        <div class="img-item" v-for="(list, index) in imgList">
+            <div class="hide-img">
+                <img :src="imgSrc" v-for="imgSrc in list" >
+            </div>
+            <img src="" :id="'gif' + index">
+        </div>
+    </div>
+    <script src="http://you.autohome.com.cn/assets/js/lib/jquery/jquery.min.v2.1.4.js"></script>
+    <script src="http://you.autohome.com.cn/assets/js/lib/vue/vue.min.v2.1.8.js"></script>
+    <script src="js/json.js"></script>
+    <script>
+        function gifRender(index){
+            var getImg = $('#gif' + index);
+            var imgList = $('.img-item').eq(index).find('.hide-img img');
+            console.log(imgList)
+            var gif = new GIF({
+              workers: 2,
+              quality: 10,
+              workerScript:'js/gif.worker.js'
+            });
+            for(var i = 0, len = imgList.length; i < len; i++){
+                console.log(imgList.eq(i))
+                gif.addFrame(imgList.get(i));
+            }
+            gif.on('finished', function(blob) {
+              getImg.attr('src', URL.createObjectURL(blob));
+            });
+            gif.render();
+        }
+        var app = new Vue({
+            el: "#app",
+            data: {
+                imgList: data.imgList
+            },
+            methods: {
+                init: function () {
+                    var item = $('.img-item');
+                    var itemLength = item.length;
+                    for(var i = 0; i < itemLength; i++){
+                        (function () {
+                            gifRender(i);
+                        })();
+                    }
+                }
+            },
+            mounted: function () {
+                var _this = this;
+                $(function(){
+                    _this.init();
+                })
+            }
+        })
+    </script>
+</body>
+</html>
